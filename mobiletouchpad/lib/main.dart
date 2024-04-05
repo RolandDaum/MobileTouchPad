@@ -1,19 +1,21 @@
 import 'dart:async';
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:connectivity/connectivity.dart';
 import 'dart:io';
+import 'package:network_info_plus/network_info_plus.dart';
 
 
 InternetAddress serverAddress = InternetAddress('0.0.0.0');
 int port = 12345;
 late RawDatagramSocket serverSocket;
 bool _activeserverSocket = false;
-Map<String, int> connectedClients = {};
+Map<String, int> connectedClients = {"10.10.10.10": 12346};
 
 void main() async {
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // Transparente Benachrichtigungsleiste
     systemNavigationBarColor: Colors.transparent, // Transparente Navigationsleiste
@@ -62,10 +64,23 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+  double deltaX = 0;
+  double deltaY = 0;
+  bool leftclick = false;
+  bool rightclick = false;
+  bool leftclickdown = false;
+  bool vertscroll = false;
+  double vertscrolldelta = 0;
+  bool horzscroll = false;
+  double horzscrolldelta = 0;
+  DateTime doubletapdown = DateTime(0);
+  late String data;
+
+  //  NetworkInfo().getWifiIP().then((value) => print(value));
+  
 
   late String _localipAddress;
   Future<void> _checkLocalIPAddress() async {
-    
     if (_connectionStatus != 'ConnectivityResult.wifi') {
       _localipAddress = 'No wifi connection';
       _activeserverSocket ? serverSocket.close() : {};
@@ -100,16 +115,28 @@ class _MainAppState extends State<MainApp> {
     });
   }
 
-  void sendData(String data) {
+  void sendData() {
+    
+    data = '{"x": $deltaX, "y": $deltaY, "leftclick": $leftclick, "rightclick": $rightclick, "leftclickdown": $leftclickdown, "vertscroll": $vertscroll, "vertscrolldelta": $vertscrolldelta, "horzscroll": $horzscroll, "horzscrolldelta": $horzscrolldelta}';
+
+    // print(data);
+
     if (_activeserverSocket) {
       connectedClients.forEach((key, value) {
         serverSocket.send(data.codeUnits, InternetAddress(key), value);
       });
+      leftclick = false;
+      rightclick = false;
+      deltaX = 0;
+      deltaY = 0;
+      horzscrolldelta = 0;
+      vertscrolldelta = 0;
     }
   }
 
   @override
   void initState() {
+
 
     _connectivity = Connectivity();
     _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
@@ -126,7 +153,6 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    bool holdleftclick = false;
 
     return MaterialApp(
 
@@ -154,53 +180,94 @@ class _MainAppState extends State<MainApp> {
                 ),
               ),
               GestureDetector(
+                // onPanDown: (details) {
+                //   print('pan down');
+                // },
+                // onPanUpdate: (details) {
+                //   deltaX = details.delta.dx;
+                //   deltaY = details.delta.dy;
+                //   sendData();
+                // },
+                // onPanEnd:(details) {
+                //   print('pan end');
+                //   leftclickdown = false;
+                //   sendData();
+                // },
+                // onPanCancel: () {
+                //   print('pan cancel');
+                //   leftclickdown = false;
+                //   sendData();
+                // },
+
+                onDoubleTapDown: (details) {
+                  print('double tap down');
+                  leftclickdown = true;
+                  doubletapdown = DateTime.now();
+                  sendData();
+                },
+                onDoubleTap: () {
+                  print('double tap');
+                  leftclickdown = false;
+                  if ((DateTime.now().millisecondsSinceEpoch - doubletapdown.millisecondsSinceEpoch) < 200 && !leftclickdown && !leftclick && !rightclick) {
+                    leftclick = true;
+                  } 
+                  sendData();
+                },
+
+                onTap:() {
+                  print('tap');
+                  leftclick = true;
+                  leftclickdown = false;
+                  sendData();
+                },
+
+                onLongPress: () {
+                  print('long press');
+                  rightclick = true;
+                  sendData();
+                },
+
                 onScaleStart: (details) {
-                  // print('pointer count ' + details.pointerCount.toString());
                   switch (details.pointerCount) {
                     case 2:
-                      // print('rightclick');
-                      break;
-                    case 1:
                       break;
                   }
                 },
                 onScaleUpdate: (details) {
                   switch (details.pointerCount) {
-                    case 2:
-                      // print('two finger scale/scroll ' + details.scale.toString());
-                      break;
                     case 1:
-                      // print('one finger delta ' + details.focalPointDelta.toString());
-                      double xdelta = details.focalPointDelta.dx;
-                      double ydelta = details.focalPointDelta.dy;
+                      deltaX = details.focalPointDelta.dx;
+                      deltaY = details.focalPointDelta.dy;
+                      break;
+                    case 2:
+                      if (horzscroll == false && vertscroll == false && details.focalPointDelta.dy.abs() < details.focalPointDelta.dx.abs()) {
+                        horzscroll = true;
+                        vertscroll = false;
+                      } else if (horzscroll == false && vertscroll == false && details.focalPointDelta.dy.abs() > details.focalPointDelta.dx.abs()) {
+                        vertscroll = true;
+                        horzscroll = false;
+                      }
 
-                      sendData('{"x": "$xdelta", "y": "$ydelta", "leftclick": false, "rightclick": false, "holdleftclick": $holdleftclick}');
+                      if (vertscroll) {
+                        vertscrolldelta = details.focalPointDelta.dy; 
+                      } else if (horzscroll) {
+                        horzscrolldelta = details.focalPointDelta.dx*-1;
+                      }
                       break;
                   }
+                  sendData();
                 },
-                onTap: () {
-                  sendData('{"x": "0", "y": "0", "leftclick": true, "rightclick": false, "holdleftclick": $holdleftclick}');
-                },
-                // onDoubleTap: () {
-                //   holdleftclick = true;
-                //   sendData('{"x": "0", "y": "0", "leftclick": true, "rightclick": false, "holdleftclick": $holdleftclick}');
-                // },
-                // onDoubleTapCancel: () {
-                //   holdleftclick = false;
-                //   sendData('{"x": "0", "y": "0", "leftclick": true, "rightclick": false, "holdleftclick": $holdleftclick}');
-                // },
-                onLongPress: () {
-                  sendData('{"x": "0", "y": "0", "leftclick": false, "rightclick": true, "holdleftclick": $holdleftclick}');
-                },
+                onScaleEnd: (details) {
+                  leftclickdown = false;
+                  horzscroll = false;
+                  vertscroll = false;
+                  sendData();
+                },             
               ),
             ],
           )
         ),
       ),
-    );;
+    );
   }
 }
-
-
-
-
