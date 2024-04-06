@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -66,14 +67,23 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   double deltaX = 0;
   double deltaY = 0;
+
   bool leftclick = false;
   bool rightclick = false;
   bool leftclickdown = false;
+
   bool vertscroll = false;
   double vertscrolldelta = 0;
   bool horzscroll = false;
   double horzscrolldelta = 0;
+
+  // bool threeFvertscroll = false;
+  // double threeFvertscrollDelta = 0;
+  // bool threeFhorzscroll = false;
+  // double threeFhorzscrollDelta = 0;
+
   DateTime doubletapdown = DateTime(0);
+
   late String data;
 
   //  NetworkInfo().getWifiIP().then((value) => print(value));
@@ -117,8 +127,8 @@ class _MainAppState extends State<MainApp> {
 
   void sendData() {
     
-    data = '{"x": $deltaX, "y": $deltaY, "leftclick": $leftclick, "rightclick": $rightclick, "leftclickdown": $leftclickdown, "vertscroll": $vertscroll, "vertscrolldelta": $vertscrolldelta, "horzscroll": $horzscroll, "horzscrolldelta": $horzscrolldelta}';
-
+    data = '{"x": $deltaX, "y": $deltaY, "leftclick": $leftclick, "rightclick": $rightclick, "leftclickdown": $leftclickdown, "vertscroll": $vertscroll, "vertscrolldelta": $vertscrolldelta, "horzscroll": $horzscroll, "horzscrolldelta": $horzscrolldelta, "threeFvertscroll": $threeFvertscroll, "threeFvertscrollDelta": $threeFvertscrollDelta, "threeFhorzscroll": $threeFhorzscroll, "threeFhorzscrollDelta":$threeFhorzscrollDelta}';
+    print(data);
     // print(data);
 
     if (_activeserverSocket) {
@@ -131,6 +141,8 @@ class _MainAppState extends State<MainApp> {
       deltaY = 0;
       horzscrolldelta = 0;
       vertscrolldelta = 0;
+      // threeFvertscrollDelta = 0;
+      // threeFhorzscrollDelta = 0;
     }
   }
 
@@ -231,6 +243,8 @@ class _MainAppState extends State<MainApp> {
                   switch (details.pointerCount) {
                     case 2:
                       break;
+                    case 3:
+                      break;
                   }
                 },
                 onScaleUpdate: (details) {
@@ -254,6 +268,23 @@ class _MainAppState extends State<MainApp> {
                         horzscrolldelta = details.focalPointDelta.dx*-1;
                       }
                       break;
+                    // case 3:
+                    //   if (!threeFvertscroll && !threeFhorzscroll && details.focalPointDelta.dy.abs() > details.focalPointDelta.dx.abs()) {
+                    //     threeFvertscroll = true;
+                    //   } else if (!threeFvertscroll && !threeFhorzscroll && details.focalPointDelta.dy.abs() < details.focalPointDelta.dx.abs()) {
+                    //     threeFhorzscroll = true;
+                    //   }
+
+                    //   if (threeFvertscroll) {
+                    //     threeFvertscrollDelta = details.focalPointDelta.dy;
+                    //     // print('3x vert $threeFvertscrollDelta');
+
+                    //   } else if (threeFhorzscroll) {
+                    //     threeFhorzscrollDelta = details.focalPointDelta.dx;
+                    //     // print('3x horz $threeFhorzscrollDelta');
+
+                    //   }
+                    //   break;
                   }
                   sendData();
                 },
@@ -261,6 +292,10 @@ class _MainAppState extends State<MainApp> {
                   leftclickdown = false;
                   horzscroll = false;
                   vertscroll = false;
+
+                  // threeFvertscroll = false;
+                  // threeFhorzscroll = false;
+
                   sendData();
                 },             
               ),

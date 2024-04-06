@@ -64,15 +64,21 @@ func clickMouseButton(buttonFlags uint32) {
 
 // Struktur für die JSON-Daten
 type MouseEvent struct {
-	X               float64 `json:"x"`
-	Y               float64 `json:"y"`
-	LeftClick       bool    `json:"leftclick"`
-	RightClick      bool    `json:"rightclick"`
-	LeftClickDown   bool    `json:"leftclickdown"`
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+
+	LeftClick     bool `json:"leftclick"`
+	RightClick    bool `json:"rightclick"`
+	LeftClickDown bool `json:"leftclickdown"`
+
 	VertScroll      bool    `json:"vertscroll"`
 	HorzScroll      bool    `json:"horzscroll"`
 	VertScrollDelta float64 `json:"vertscrolldelta"`
 	HorzScrollDelta float64 `json:"horzscrolldelta"`
+	// 	ThreeFVertScroll      bool    `json:"threeFvertscroll"`
+	// 	ThreeFVertScrollDelta float64 `json:"threeFvertscrollDelta"`
+	// 	ThreeFHorzScroll      bool    `json:"threeFhorzscroll"`
+	// 	ThreeFHorzScrollDelta float64 `json:"threeFhorzscrollDelta"`
 }
 
 func main() {
@@ -94,6 +100,8 @@ func main() {
 	buffer := make([]byte, 1024)
 
 	mousedown := false
+	// switchwindow := false
+	// lastswitcharrowtime := time.Now()
 
 	for {
 		// Daten empfangen
@@ -112,6 +120,8 @@ func main() {
 
 		fmt.Println(addr.String())
 
+		fmt.Println(event)
+
 		roundedX := math.Round(event.X * 2)
 		roundedY := math.Round(event.Y * 2)
 		if event.X == 0 {
@@ -127,6 +137,9 @@ func main() {
 			clickMouseButton(MOUSEEVENTF_LEFTDOWN)
 			time.Sleep(time.Duration(100) * time.Millisecond)
 			clickMouseButton(MOUSEEVENTF_LEFTUP)
+			// robotgo.KeyToggle("alt", "up")
+			// robotgo.KeyToggle("tab", "up")
+			// switchwindow = false
 		} else if event.RightClick {
 			clickMouseButton(MOUSEEVENTF_RIGHTDOWN)
 			time.Sleep(time.Duration(100) * time.Millisecond)
@@ -146,43 +159,25 @@ func main() {
 			scrollMouseWheel(int(event.VertScrollDelta)*2, false)
 		}
 
-		// if !event.HorzScroll && !event.VertScroll {
-		// 	roundedX := math.Round(event.X * 2)
-		// 	roundedY := math.Round(event.Y * 2)
-		// 	if event.X == 0 {
-		// 		roundedX = 0
+		// if event.ThreeFVertScroll {
+		// 	if event.ThreeFVertScrollDelta < -2 && !switchwindow {
+		// 		robotgo.KeyToggle("alt")
+		// 		robotgo.KeyToggle("tab")
+		// 		switchwindow = true
+		// 	} else if event.ThreeFVertScrollDelta > 2 && switchwindow {
+		// 		robotgo.KeyToggle("alt", "up")
+		// 		robotgo.KeyToggle("tab", "up")
+		// 		switchwindow = false
 		// 	}
-		// 	if event.Y == 0 {
-		// 		roundedY = 0
+		// } else if event.ThreeFHorzScroll && switchwindow {
+
+		// 	if event.ThreeFHorzScrollDelta < 2 {
+		// 		robotgo.KeyTap("right")
+		// 		// lastswitcharrowtime = time.Now()
+		// 	} else if event.ThreeFHorzScrollDelta > -2 {
+		// 		robotgo.KeyTap("left")
+		// 		// lastswitcharrowtime = time.Now()
 		// 	}
-		// 	x, y := robotgo.GetMousePos()
-		// 	newx := int(roundedX) + x
-		// 	newy := int(roundedY) + y
-		// 	setCursorPos(newx, newy)
-		// }
-		// if event.LeftClick && !event.LeftClickDown {
-		// 	clickMouseButton(MOUSEEVENTF_LEFTDOWN)
-		// 	time.Sleep(time.Duration(50) * time.Millisecond)
-		// 	clickMouseButton(MOUSEEVENTF_LEFTUP)
-		// 	// robotgo.Click()
-		// } else if event.RightClick {
-		// 	clickMouseButton(MOUSEEVENTF_RIGHTDOWN)
-		// 	time.Sleep(time.Duration(50) * time.Millisecond)
-		// 	clickMouseButton(MOUSEEVENTF_RIGHTUP)
-		// 	// robotgo.Click("right")
-		// } else if event.LeftClickDown && !mousedown {
-		// 	mousedown = true
-		// 	clickMouseButton(MOUSEEVENTF_LEFTDOWN)
-		// 	// robotgo.Toggle("left")
-		// } else if !event.LeftClickDown {
-		// 	mousedown = false
-		// 	clickMouseButton(MOUSEEVENTF_LEFTUP)
-		// 	// robotgo.Toggle("left", "up")
-		// } else if event.VertScroll {
-		// 	scrollMouseWheel(int(event.VertScrollDelta) * 2)
-		// 	// robotgo.Scroll(0, int(event.VertScrollDelta), 0)
-		// } else if event.HorzScroll {
-		// 	scrollMouseWheel(int(event.HorzScrollDelta) * 2)
 		// }
 
 	}
