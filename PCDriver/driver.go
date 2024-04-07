@@ -12,6 +12,7 @@ import (
 	"github.com/go-vgo/robotgo"
 )
 
+// Windows System Stuff
 const (
 	MOUSEEVENTF_WHEEL  = 0x0800
 	MOUSEEVENTF_HWHEEL = 0x01000
@@ -24,16 +25,20 @@ const (
 	MOUSEEVENTF_MIDDLEUP   = 0x0040
 )
 
+// Windows System stuff (GPT is kind a genius)
 var (
 	user32           = syscall.NewLazyDLL("user32.dll")
 	procSetCursorPos = user32.NewProc("SetCursorPos")
 	procMouseEvent   = user32.NewProc("mouse_event")
-	sendInput        = user32.NewProc("SendInput")
+	// sendInput        = user32.NewProc("SendInput")
 )
 
+// Set coursor to fixed Position
 func setCursorPos(x, y int) {
 	procSetCursorPos.Call(uintptr(x), uintptr(y))
 }
+
+// Scroll Mousewheel with a delta value
 func scrollMouseWheel(delta int, isHorizontal bool) {
 	var flags uint32
 	if isHorizontal {
@@ -42,7 +47,7 @@ func scrollMouseWheel(delta int, isHorizontal bool) {
 		flags = MOUSEEVENTF_WHEEL
 	}
 
-	// Simuliere das Scrollen des Mausrads
+	// Simulated Mouse Scroll
 	procMouseEvent.Call(
 		uintptr(flags),
 		0,
@@ -51,8 +56,10 @@ func scrollMouseWheel(delta int, isHorizontal bool) {
 		0,
 	)
 }
+
+// Click the
 func clickMouseButton(buttonFlags uint32) {
-	// Simuliere Maustastenklicks
+	// Simulated Mouse Click
 	procMouseEvent.Call(
 		uintptr(buttonFlags),
 		0,
@@ -62,7 +69,7 @@ func clickMouseButton(buttonFlags uint32) {
 	)
 }
 
-// Struktur für die JSON-Daten
+// JSON Data Structure
 type MouseEvent struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
@@ -75,53 +82,45 @@ type MouseEvent struct {
 	HorzScroll      bool    `json:"horzscroll"`
 	VertScrollDelta float64 `json:"vertscrolldelta"`
 	HorzScrollDelta float64 `json:"horzscrolldelta"`
-	// 	ThreeFVertScroll      bool    `json:"threeFvertscroll"`
-	// 	ThreeFVertScrollDelta float64 `json:"threeFvertscrollDelta"`
-	// 	ThreeFHorzScroll      bool    `json:"threeFhorzscroll"`
-	// 	ThreeFHorzScrollDelta float64 `json:"threeFhorzscrollDelta"`
 }
 
 func main() {
-	// Adresse, auf der der UDP-Server lauschen soll
+
+	// -- UDP SERVER STUFF -- //
+	// UDP Server Address
 	addr, err := net.ResolveUDPAddr("udp", ":12346")
 	if err != nil {
-		fmt.Println("Fehler beim Auflösen der Adresse:", err)
+		fmt.Println("Error while resolving the IP Address:", err)
 		return
 	}
-	// UDP-Verbindung erstellen
+	// Establish UDP - Connection
 	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
 		fmt.Println("Fehler beim Erstellen der UDP-Verbindung:", err)
 		return
 	}
 	defer conn.Close()
-	fmt.Println("UDP-Server gestartet. Warte auf Daten...")
-	// Puffer für den Empfang von Daten erstellen
+	fmt.Println("Started UDP Server...")
+	// Puffer Size
 	buffer := make([]byte, 1024)
 
 	mousedown := false
-	// switchwindow := false
-	// lastswitcharrowtime := time.Now()
-
 	for {
-		// Daten empfangen
+		// Recive Data
 		n, addr, err := conn.ReadFromUDP(buffer)
 		if err != nil {
-			fmt.Println("Fehler beim Empfangen von Daten:", err)
+			fmt.Println("Error while recieving data:", err)
 			continue
 		}
-
-		// Daten als JSON lesen
+		// Read Data (Json)
 		var event MouseEvent
 		if err := json.Unmarshal(buffer[:n], &event); err != nil {
-			fmt.Println("Fehler beim Lesen der JSON-Daten:", err)
+			fmt.Println("Error while reading Json data:", err)
 			continue
 		}
-
 		fmt.Println(addr.String())
 
-		fmt.Println(event)
-
+		// Mouse Logic
 		roundedX := math.Round(event.X * 2)
 		roundedY := math.Round(event.Y * 2)
 		if event.X == 0 {
@@ -137,9 +136,6 @@ func main() {
 			clickMouseButton(MOUSEEVENTF_LEFTDOWN)
 			time.Sleep(time.Duration(100) * time.Millisecond)
 			clickMouseButton(MOUSEEVENTF_LEFTUP)
-			// robotgo.KeyToggle("alt", "up")
-			// robotgo.KeyToggle("tab", "up")
-			// switchwindow = false
 		} else if event.RightClick {
 			clickMouseButton(MOUSEEVENTF_RIGHTDOWN)
 			time.Sleep(time.Duration(100) * time.Millisecond)
@@ -158,27 +154,5 @@ func main() {
 		} else if event.VertScroll {
 			scrollMouseWheel(int(event.VertScrollDelta)*2, false)
 		}
-
-		// if event.ThreeFVertScroll {
-		// 	if event.ThreeFVertScrollDelta < -2 && !switchwindow {
-		// 		robotgo.KeyToggle("alt")
-		// 		robotgo.KeyToggle("tab")
-		// 		switchwindow = true
-		// 	} else if event.ThreeFVertScrollDelta > 2 && switchwindow {
-		// 		robotgo.KeyToggle("alt", "up")
-		// 		robotgo.KeyToggle("tab", "up")
-		// 		switchwindow = false
-		// 	}
-		// } else if event.ThreeFHorzScroll && switchwindow {
-
-		// 	if event.ThreeFHorzScrollDelta < 2 {
-		// 		robotgo.KeyTap("right")
-		// 		// lastswitcharrowtime = time.Now()
-		// 	} else if event.ThreeFHorzScrollDelta > -2 {
-		// 		robotgo.KeyTap("left")
-		// 		// lastswitcharrowtime = time.Now()
-		// 	}
-		// }
-
 	}
 }
