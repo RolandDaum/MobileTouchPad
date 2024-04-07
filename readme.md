@@ -1,6 +1,10 @@
 # Mobile Touchpad
 Transform your Android device into a versatile touchpad for your Windows PC or laptop.
 
+<div style="border-radius: 50px; overflow: hidden; display: flex; justify-content: center; align-items: center; width: 400px; margin-left: 50px"> 
+  <img src='https://github.com/RolandDaum/MobileTouchPad/blob/main/mobiletouchpad/assets/icon.png?raw=true' width='400px'>
+</div>
+
 ## Features
 - Mouse movement (Single Finger)
 - Left Click (One Finger Touch)
@@ -28,10 +32,13 @@ Transform your Android device into a versatile touchpad for your Windows PC or l
 - Both devices must be on the same network
 
 ## Installation
-1. Install the latest APK from the releases' section on your mobile device.
+1. Install the latest APK from the [releases section](https://github.com/RolandDaum/MobileTouchPad/releases/tag/v1.0.0) on your mobile device.
 
-2. Download the driver.go.exe file and execute it.
-2.1 Optionally, you can place the driver in the Windows autostart folder (C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup).
+2. Download the driver.go.exe from the latest [release section](https://github.com/RolandDaum/MobileTouchPad/releases/tag/v1.0.0) file and execute it.
+2.1 Optionally, you can place the driver in the Windows autostart folder.
+```
+C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+```
 
 3. In the app, click on the settings in the bottom right corner.
 3.1 Add the local IPV4 Address to the list (e.g., '10.10.10.37').
