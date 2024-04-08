@@ -140,7 +140,7 @@ class _MainAppState extends State<MainApp> {
 
       theme: ThemeData(
         // colorSchemeSeed: Colors.green[900],
-        colorSchemeSeed: Color(0xff31BAF2),
+        colorSchemeSeed: const Color(0xff31BAF2),
         useMaterial3: true,
         brightness: Brightness.dark
       ),

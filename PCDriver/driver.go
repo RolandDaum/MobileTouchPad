@@ -1,3 +1,5 @@
+// go build -ldflags "-H windowsgui"+
+
 package main
 
 import (
@@ -5,11 +7,10 @@ import (
 	"math"
 	"syscall"
 	"time"
+	"unsafe"
 
 	"encoding/json"
 	"net"
-
-	"github.com/go-vgo/robotgo"
 )
 
 // Windows System Stuff
@@ -27,11 +28,16 @@ const (
 
 // Windows System stuff (GPT is kind a genius)
 var (
-	user32           = syscall.NewLazyDLL("user32.dll")
-	procSetCursorPos = user32.NewProc("SetCursorPos")
-	procMouseEvent   = user32.NewProc("mouse_event")
+	user32            = syscall.NewLazyDLL("user32.dll")
+	procSetCursorPos  = user32.NewProc("SetCursorPos")
+	procMouseEvent    = user32.NewProc("mouse_event")
+	getWindowRectProc = user32.NewProc("GetCursorPos")
 	// sendInput        = user32.NewProc("SendInput")
 )
+
+type POINT struct {
+	X, Y int32
+}
 
 // Set coursor to fixed Position
 func setCursorPos(x, y int) {
@@ -107,7 +113,7 @@ func main() {
 	mousedown := false
 	for {
 		// Recive Data
-		n, addr, err := conn.ReadFromUDP(buffer)
+		n, _, err := conn.ReadFromUDP(buffer)
 		if err != nil {
 			fmt.Println("Error while recieving data:", err)
 			continue
@@ -118,7 +124,6 @@ func main() {
 			fmt.Println("Error while reading Json data:", err)
 			continue
 		}
-		fmt.Println(addr.String())
 
 		// Mouse Logic
 		roundedX := math.Round(event.X * 2)
@@ -129,8 +134,12 @@ func main() {
 		if event.Y == 0 {
 			roundedY = 0
 		}
-		x, y := robotgo.GetMousePos()
-		setCursorPos(int(roundedX)+x, int(roundedY)+y)
+		var pt POINT
+		_, _, eno := syscall.SyscallN(getWindowRectProc.Addr(), uintptr(unsafe.Pointer(&pt)))
+		if eno != 0 {
+			fmt.Println(eno)
+		}
+		setCursorPos(int(roundedX)+int(pt.X), int(roundedY)+int(pt.Y))
 
 		if event.LeftClick {
 			clickMouseButton(MOUSEEVENTF_LEFTDOWN)
