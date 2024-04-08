@@ -11,6 +11,7 @@ Transform your Android device into a versatile touchpad for your Windows PC or l
 - Right Click (Long Touch)
 - Hold Left Click (Double Touch down and hold)
 - Scroll Horizontal/Vertical (Two Finger movement horizontal/vertical)
+- Restart UDP Server in App with fast four finger vertical pulldown over the entiry screen
 
 ## Content
 - [Mobile Touchpad](#mobile-touchpad)
