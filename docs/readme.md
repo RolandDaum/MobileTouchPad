@@ -1,9 +1,8 @@
 # Mobile Touchpad
-Transform your Android device into a versatile touchpad for your Windows PC or laptop.
 
-<div style="border-radius: 50px; overflow: hidden; display: flex; justify-content: center; align-items: center; width: 400px; margin-left: 50px"> 
-  <img src='https://github.com/RolandDaum/MobileTouchPad/blob/main/mobiletouchpad/assets/icon.png?raw=true' width='400px'>
-</div>
+![Project Banner](https://github.com/RolandDaum/MobileTouchPad/blob/main/docs/mbtp_banner.png?raw=true)
+
+Transform your Android device into a versatile touchpad for your Windows PC or laptop.
 
 ## Features
 - Mouse movement (Single Finger)
@@ -11,7 +10,7 @@ Transform your Android device into a versatile touchpad for your Windows PC or l
 - Right Click (Long Touch)
 - Hold Left Click (Double Touch down and hold)
 - Scroll Horizontal/Vertical (Two Finger movement horizontal/vertical)
-- Restart UDP Server in App with fast four finger vertical pulldown over the entiry screen
+- Restart UDP Server in App with fast four finger vertical pull-down over the entire screen
 
 ## Content
 - [Mobile Touchpad](#mobile-touchpad)
@@ -29,7 +28,7 @@ Transform your Android device into a versatile touchpad for your Windows PC or l
 ## Requirements
 - Android device
 - Windows device
-- WIFI connection for your Android device
+- WiFi connection for your Android device
 - Both devices must be on the same network
 
 ## Installation
@@ -48,9 +47,15 @@ C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startu
 
 # Implementation
 ## Android App
-The Android App is made with Flutter, a cross-platform tool to develop Apps. Under the hood, it is using a basic GestureDetector widget, witch tracks the touch movement and sends it to every device with is saved in the list. The data itself is formatted as JSON.
+The Android App is made with Flutter, a cross-platform tool to develop Apps. Under the hood, it is using a basic GestureDetector widget, which tracks the touch movement and sends it to every device with is saved in the list. The data itself is formatted as JSON.
 ```
-{"x": $deltaX, "y": $deltaY, "leftclick": $leftclick, "rightclick": $rightclick, "leftclickdown": $leftclickdown, "vertscroll": $vertscroll, "vertscrolldelta": $vertscrolldelta, "horzscroll": $horzscroll, "horzscrolldelta": $horzscrolldelta}
+{
+  "x": $deltaX, "y": $deltaY, 
+  "leftclick": $leftclick, "rightclick": $rightclick, 
+  "leftclickdown": $leftclickdown, 
+  "vertscroll": $vertscroll, "vertscrolldelta": $vertscrolldelta, 
+  "horzscroll": $horzscroll, "horzscrolldelta": $horzscrolldelta
+}
 ```
 For sending the data I'm using a UDP Connection. The Server Port (unused) is 12345 and the client Port is 12346.
 ## PC Driver
