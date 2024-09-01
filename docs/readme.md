@@ -5,12 +5,12 @@
 Transform your Android device into a versatile touchpad for your Windows PC or laptop.
 
 ## Features
-- Mouse movement (Single Finger)
-- Left Click (One Finger Touch)
-- Right Click (Long Touch)
-- Hold Left Click (Double Touch down and hold)
-- Scroll Horizontal/Vertical (Two Finger movement horizontal/vertical)
-- Restart UDP Server in App with fast four finger vertical pull-down over the entire screen
+- Mouse movement (single finger)
+- Left click (one finger touch)
+- Right click (long touch)
+- Hold left click (double touch down and hold)
+- Scroll horizontal/vertical (double finger movement horizontal/vertical)
+- Restart UDP server in app with fast four finger vertical pull-down over the entire screen
 
 ## Content
 - [Mobile Touchpad](#mobile-touchpad)
@@ -47,7 +47,7 @@ C:\Users\%username%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startu
 
 # Implementation
 ## Android App
-The Android App is made with Flutter, a cross-platform tool to develop Apps. Under the hood, it is using a basic GestureDetector widget, which tracks the touch movement and sends it to every device with is saved in the list. The data itself is formatted as JSON.
+The Android App is made with Flutter, a cross-platform tool to develop Apps. Under the hood, it is using a basic GestureDetector widget, which tracks the touch movement and sends it to every device which is saved in the list. The data itself is formatted as JSON.
 ```
 {
   "x": $deltaX, "y": $deltaY, 
@@ -57,6 +57,6 @@ The Android App is made with Flutter, a cross-platform tool to develop Apps. Und
   "horzscroll": $horzscroll, "horzscrolldelta": $horzscrolldelta
 }
 ```
-For sending the data I'm using a UDP Connection. The Server Port (unused) is 12345 and the client Port is 12346.
+For sending the data I'm using a UDP Connection. The server port (unused) is 12345 and the client port is 12346.
 ## PC Driver
 The PC Driver is written in go, for its excellent performance and efficiency. With the help of ChatGPT I was able to get access to the native Windows API I think, which allows me to move the mouse and all the different implemented actions.
